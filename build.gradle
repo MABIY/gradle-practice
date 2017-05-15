@@ -7,6 +7,7 @@ buildscript {
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.2.RELEASE")
+        classpath('se.transmode.gradle:gradle-docker:1.2')
     }
 }
 
@@ -33,4 +34,21 @@ dependencies {
 }
 task wrapper(type: Wrapper) {
     gradleVersion = '3.5'
+}
+
+apply plugin: 'docker'
+task buildDocker(type: Docker, dependsOn: build) {
+    push = false
+    // images name:tag
+    project.group="springio" // 设置 github 用户名
+    applicationName = jar.baseName;
+    tagVersion= "latest"
+
+    dockerfile = file('src/main/docker/Dockerfile')
+    doFirst {
+        copy {
+            from jar
+            into stageDir
+        }
+    }
 }
